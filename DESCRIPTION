@@ -8,7 +8,7 @@ Authors@R:
 		"Bligh", 
 		"mbligh@mpi-bremen.de",,
 		role = c("aut", "cre"),
-		comment = c(ORCID = "YOUR-ORCID-ID"))
+		comment = c(ORCID = "YOUR-ORCID-ID")),
 	person("Sebastian",
 		"Silva",,
 		"ssilva@mpi-bremen.de",
