@@ -257,8 +257,7 @@ Dulce_annotate = function(data, pgp=NULL,
   data.table::setkey(predicted, mzmin, mzmax)
   
   predicted = data.table::foverlaps(data,predicted) %>% 
-    tidyr::drop_na(name) %>% 
-    dplyr::select(-i.mzmin, -i.mzmax, -i.mz) %>% 
+    tidyr::drop_na(name) %>%
     as.data.frame()
   
   return(predicted)
