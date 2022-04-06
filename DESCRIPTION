@@ -4,14 +4,14 @@ Version: 0.0.0.9000
 Date: 2022-06-04
 Authors@R:
 	c(
-	person("Margot", 
-		"Bligh",
-		"mbligh@mpi-bremen.de",
+	person(given="Margot", 
+		family="Bligh",
+		email="mbligh@mpi-bremen.de",
 		role = c("aut", "cre"),
 		comment = c(ORCID = "YOUR-ORCID-ID")),
-	person("Sebastian",
-		"Silva",
-		"ssilva@mpi-bremen.de",
+	person(given="Sebastian",
+		family="Silva",
+		email="ssilva@mpi-bremen.de",
 		role = c("aut"),
 		comment = c(ORCID = "0000-0002-1562-5498"))
 	)
