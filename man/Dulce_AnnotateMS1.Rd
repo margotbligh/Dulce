@@ -21,11 +21,16 @@ Dulce_AnnotateMS1(
   pgp = NULL,
   ppm = NULL,
   mzabs = NULL,
-  return_everything = F
+  output = "all"
 )
 }
 \arguments{
 \item{data}{any class of object... Dulce message: Try me out baby.}
+
+\item{output}{Character that determines what the function will return.
+If \code{"main"}, a list with an \code{'XCMSnExp'} object (if possible) and the last achieved product will be returned.
+If \code{"all"}, a list with all the partial products along the pipeline is returned.
+If \code{"last"}, only the last achieved product will be returned.}
 }
 \value{
 The last produced object before an error (or at least that is the idea)
