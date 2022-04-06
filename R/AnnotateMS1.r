@@ -34,12 +34,12 @@ Dulce_fetch = function(data,
   }
   
   # If no param objects defined, default is used.
-  if (is.null(cwp)){cwp = CentWaveParam()}
+  if (is.null(cwp)){cwp = xcms::CentWaveParam()}
   else if (!is.null(cwp) & class(cwp)!="CentWaveParam"){
     stop("Dulce error: 'cwp' is not an 'CentWaveParam' object. 
          Check for ?CentWaveParam or set it as NULL to use default arguments.")}
   
-  if (is.null(pdp)){pdp = PeakDensityParam(sampleGroups=rep("Ungrouped", nrow(data)))}
+  if (is.null(pdp)){pdp = xcms::PeakDensityParam(sampleGroups=rep("Ungrouped", nrow(data)))}
   else if (class(pdp)!="PeakDensityParam"){
     stop("Dulce error: 'pdp' is not an 'PeakDensityParam' object. Check for ?PeakDensityParam or set it as NULL to use default arguments.")}
   
@@ -50,7 +50,7 @@ Dulce_fetch = function(data,
   
   # Fetch 
   suppressMessages({
-  processed_data = findChromPeaks(data, param=cwp) %>% groupChromPeaks(param=pdp)
+  processed_data = xcms::findChromPeaks(data, param=cwp) %>% xcms::groupChromPeaks(param=pdp)
   })
   message("Peaks picked and grouped!")
   
@@ -94,7 +94,7 @@ Dulce_to_xcmsSet = function(data, names=NULL, classes=NULL){
   
   if (class(data)!="XCMSnExp"){stop("Dulce error: 'data' object is not from 'XCMSnExp' class.")}
   
-  suppressMessages({data_converted = as(data, "xcmsSet")})
+  suppressMessages({data_xcmsSet = as(data, "xcmsSet")})
   
   if (is.null(names)){names = sprintf("sample_%03d", 1:nrow(data))}
   if (is.null(classes)){
@@ -102,10 +102,10 @@ Dulce_to_xcmsSet = function(data, names=NULL, classes=NULL){
     message("Dulce warning: No sample class given. One class under the name of 'Unclassified' will be created.")
   }
   
-  sampnames(data_converted) = names
-  sampclass(data_converted) = classes
+  sampnames(data_xcmsSet) = names
+  sampclass(data_xcmsSet) = classes
   
-  return(data_converted)
+  return(data_xcmsSet)
 }
 
 
@@ -136,15 +136,15 @@ Dulce_find = function(data, isotopes=T, adducts=T,
     stop("Dulce error: NULL polarity? Check it twice.")
   }
   
-  data = xsAnnotate(data) %>% groupFWHM(perfwhm = perfwhm)
+  data = CAMERA::xsAnnotate(data) %>% CAMERA::groupFWHM(perfwhm = perfwhm)
   
   if (isotopes){
-    data = data %>% findIsotopes(mzabs=mzabs) %>% 
-      groupCorr(cor_eic_th=cor_eic_th) 
+    data = data %>% CAMERA::findIsotopes(mzabs=mzabs) %>% 
+      CAMERA::groupCorr(cor_eic_th=cor_eic_th) 
   }
   
   if (adducts){
-    data = data %>% findAdducts(polarity=polarity)
+    data = data %>% CAMERA::findAdducts(polarity=polarity)
   }
   
   return(data)
@@ -177,15 +177,18 @@ Dulce_trimIsotopes = function(data, rtmin=0, rtmax=Inf){
   
   if (class(data)!="xsAnnotate"){stop("Dulce error: 'data' object is not from 'xsAnnotate' class.")}
   
-  data = getPeaklist(data) %>% filter(between(rt, rtmin, rtmax))
+  data = CAMERA::getPeaklist(data) %>% dplyr::filter(data.table::between(rt, !!rtmin, !!rtmax))
   
-  data_isotopes = data %>% filter(isotopes!="") %>% 
-    mutate(isotope_group=sub(x=isotopes, pat="\\[M.*", rep="")) %>% 
-    group_by(isotope_group) %>% 
-    mutate(isotopes = paste(isotopes, collapse=",")) %>% 
-    distinct(isotope_group, .keep_all=T)
+  data_isotopes = data %>% 
+    dplyr::filter(isotopes!="") %>% 
+    dplyr::mutate(isotope_group=sub(x=isotopes, pat="\\[M.*", rep="")) %>% 
+    dplyr::group_by(isotope_group) %>% 
+    dplyr::mutate(isotopes = paste(isotopes, collapse=",")) %>% 
+    dplyr::distinct(isotope_group, .keep_all=T)
   
-  data = data %>% filter(isotopes=="") %>% bind_rows(data_isotopes) %>% 
+  data = data %>% 
+    dplyr::filter(isotopes=="") %>% 
+    dplyr::bind_rows(data_isotopes) %>% 
     dplyr::select(-isotope_group)
   
   return(data)
@@ -232,26 +235,31 @@ Dulce_annotate = function(data, pgp=NULL,
   
   if (is.null(pgp)){pgp = predictGlycansParam()}
   else if (!is.null(pgp) & class(pgp)!="predictGlycansParam"){
-    stop("Dulce error: 'cwp' is not an 'predictGlycansParam' object. Check for ?predictGlycansParam or set it as NULL to use default arguments.")}
+    stop("Dulce error: 'pgp' is not an 'predictGlycansParam' object. Check for ?predictGlycansParam or set it as NULL to use default arguments.")}
   
   
-  predicted = predictGlycans(param=pgp) %>% 
-    pivot_longer(-c(name, dp, mass, formula), names_to = "ion", values_to = "mz") %>% 
-    drop_na()
+  predicted = glycanPredict::predictGlycans(param=pgp) %>% 
+    tidyr::pivot_longer(-c(name, dp, mass, formula), names_to = "ion", values_to = "mz") %>% 
+    tidyr::drop_na()
   
   if (!is.null(mzabs)){
-    predicted = predicted %>% mutate(mzmin=mz-mzabs,
-                                     mzmax=mz+mzabs)
+    predicted = predicted %>% 
+      dplyr::mutate(mzmin=mz-mzabs, 
+                    mzmax=mz+mzabs)
   } else if (!is.null(ppm)){
-    predicted = predicted %>% mutate(mzmin=mz-ppm_to_mz(mz, ppm),
-                                     mzmax=mz+ppm_to_mz(mz, ppm))
+    predicted = predicted %>% 
+      dplyr::mutate(mzmin=mz-ppm_to_mz(mz, ppm),
+                    mzmax=mz+ppm_to_mz(mz, ppm))
   }
   
-  setDT(predicted)
-  setDT(data)
-  setkey(predicted, mzmin, mzmax)
-  predicted = foverlaps(data,predicted) %>% drop_na(name) %>% 
-    dplyr::select(-i.mzmin, -i.mzmax, -i.mz) %>% as.data.frame()
+  data.table::setDT(predicted)
+  data.table::setDT(data)
+  data.table::setkey(predicted, mzmin, mzmax)
+  
+  predicted = data.table::foverlaps(data,predicted) %>% 
+    tidyr::drop_na(name) %>% 
+    dplyr::select(-i.mzmin, -i.mzmax, -i.mz) %>% 
+    as.data.frame()
   
   return(predicted)
 }
@@ -269,7 +277,10 @@ Dulce_annotate = function(data, pgp=NULL,
 #' Read some literature, don't be lazy.
 #' 
 #' @param data any class of object... Dulce message: Try me out baby.
-#' 
+#' @param output Character that determines what the function will return. 
+#' If \code{"main"}, a list with an \code{'XCMSnExp'} object (if possible) and the last achieved product will be returned.
+#' If \code{"all"}, a list with all the partial products along the pipeline is returned. 
+#' If \code{"last"}, only the last achieved product will be returned. 
 #' @return The last produced object before an error (or at least that is the idea)
 #' 
 #' @export
@@ -288,19 +299,30 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
                        polarity=NULL,
                        rtmin=0, rtmax=Inf,
                        pgp=NULL, ppm=NULL, mzabs=NULL,
-                       return_everything=F){
+                       output = "all"){
   
-  data_list = list()
-  register(SerialParam())
+  data_all = list()
+  data_main = list()
+  
+  if (!output %in% c("all", "main", "last")){
+    stop("Dulce error: 'output' argument not recognized. The options are 'all', 'main' or 'last'. See ?Dulce_AnnotateMS1 for more information.")
+  }
+  
+  BiocParallel::register(SerialParam())
   
   if (class(data) %in% c("OnDiskMSnExp","MSnExp")){
     message("Dulce note: executing Dulce_fetch function. Bip Bop... Bip Bop...")
-    data = Dulce_fetch(data, cwp=cwp, pdp=pdp, return_everything=return_everything)
-    if (return_everything){
-      data_list$data_peaks = data$peaks
-      data_list$data_features = data$features
-      data_list$data_fetch = data$data
+    if (output == "all"){
+      data = Dulce_fetch(data, cwp=cwp, pdp=pdp, return_everything=T)
+      data_all$peaks = data$peaks
+      data_all$features = data$features
+      data_all$XCMSnExp = data$data
       data = data$data
+    } else if (output == "main"){
+      data = Dulce_fetch(data, cwp=cwp, pdp=pdp, return_everything=F)
+      data_main$XCMSnExp = data
+    } else if (output == "last"){
+      data = Dulce_fetch(data, cwp=cwp, pdp=pdp, return_everything=F)
     }
   } else {
     message("Dulce warning: 'data' not from 'OnDiskMSnExp' or 'MSnExp' class.")
@@ -310,11 +332,11 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
   if (class(data)=="XCMSnExp"){
     message("Dulce note: executing Dulce_to_xcmsSet function. Diroo... Diroo Diroo... ")
     data = Dulce_to_xcmsSet(data, names, classes)
-    if (return_everything){data_list$data_xcmsSet = data}
-  } else {
-    message("Dulce warning: 'data' not from 'XCMSnExp' class.")
-    message("Dulce warning: trying next step in pipeline, Dulce_find()")
-  }
+    if (output == "all"){data_all$xcmsSet = data}
+    } else {
+      message("Dulce warning: 'data' not from 'XCMSnExp' class.")
+      message("Dulce warning: trying next step in pipeline, Dulce_find()")
+    }
   
   if (class(data)=="xcmsSet"){
     message("Dulce note: executing Dulce_find function. Daroo bip... daroo bop... ")
@@ -322,36 +344,41 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
     data = Dulce_find(data, isotopes=isotopes, adducts=adducts, 
                      perfwhm=perfwhm, mzabs=mzabs.find, cor_eic_th=cor_eic_th,
                      polarity=polarity)
-    if (return_everything){data_list$data_find = data}
-  } else {
-    message("Dulce warning: 'data' not from 'xcmsSet' class.")
-    message("Dulce warning: trying next step in pipeline, Dulce_trimIsotopes()")
-  }
+    if (output == "all"){data_all$xsAnnotate = data}
+    } else {
+      message("Dulce warning: 'data' not from 'xcmsSet' class.")
+      message("Dulce warning: trying next step in pipeline, Dulce_trimIsotopes()")
+    }
    
   if (class(data)=="xsAnnotate"){
     message("Dulce note: executing Dulce_trimIsotopes function. Beep... clink...")
     data = Dulce_trimIsotopes(data, rtmin=rtmin, rtmax=rtmax)
-    if (return_everything){data_list$data_trimIsotopes = data}
-  } else {
-    message("Dulce warning: 'data' not from 'xsAnnotate' class.")
-    message("Dulce warning: trying next step in pipeline, Dulce_annotate()")
-  }
+    if (output == "all"){data_all$trimmedIsotopes = data}
+    } else {
+      message("Dulce warning: 'data' not from 'xsAnnotate' class.")
+      message("Dulce warning: trying next step in pipeline, Dulce_annotate()")
+    }
     
   if (class(data)=="data.frame"){
     message("Dulce note: executing Dulce_annotate function. Wooosh! Birup... Birup... pa!")
     data = Dulce_annotate(data, pgp=pgp, ppm=ppm, mzabs=mzabs)
-    if (return_everything){data_list$data_annotate = data}
+    if (output == "all"){data_all$Annotated = data}
+    else if (output == "main"){data_main$Annotated = data} 
+    
   } else {
-    message("Dulce warning: 'data' not even from 'data.frame' class. What did you give me?")
+      message("Dulce warning: 'data' not even from 'data.frame' class. What did you give me?")
   }
   
-  if (return_everything){
-    message("Dulce note: returning a list with the product of the steps I was able to do successfully.")
-    return(data_list)
+  if (output == "all"){
+    message("Dulce note: returning a list with the product of all the steps I was able to do successfully.")
+    return(data_all)
+  } else if (output == "main"){
+    message("Dulce note: returning a list with an 'XCMSnExp' object (if possible) and the last achieved product.")
+    return(data_main)
+  } else if (output == "last"){
+    message("Dulce note: returning the last object I was able to produce.")
+    return(data)
   }
-
-  message("Dulce note: returning the last object I was able to produce.")
-  return(data)
 }
 
 
