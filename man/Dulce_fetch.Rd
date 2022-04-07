@@ -2,7 +2,7 @@
 % Please edit documentation in R/AnnotateMS1.r
 \name{Dulce_fetch}
 \alias{Dulce_fetch}
-\title{Fetch: find and group picks}
+\title{Fetch: Find and Group Picks}
 \usage{
 Dulce_fetch(data, cwp = NULL, pdp = NULL, return_everything = F)
 }
@@ -17,16 +17,14 @@ Dulce_fetch(data, cwp = NULL, pdp = NULL, return_everything = F)
 If TRUE, a list, with (1) \code{XCMSnExp} object, (2) chromPeaks data.frame and (3) featureDefinitions data.frame, is returned.}
 }
 \description{
-This functions is a robust pipeline that merges the
+This functions is part of the AnnotateMS1 pipeline and merges the
 \code{findChromPeaks()} function and \code{groupChromPeaks()} function.
-}
-\details{
-Dobie dobie doo diroo diroo
 }
 \examples{
 # Examples have to be made with a toy data object.
 
 }
 \seealso{
-xcms::CentWaveParam()
+xcms::CentWaveParam
+Dulce_AnnotateMS1
 }

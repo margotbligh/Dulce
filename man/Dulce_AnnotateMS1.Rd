@@ -36,7 +36,7 @@ If \code{"last"}, only the last achieved product will be returned.}
 The last produced object before an error (or at least that is the idea)
 }
 \description{
-Run the complete pipeline. Lots of things are gonna be assumed, many
+AnnotateMS1 pipeline. The complete pipeline. Lots of things are gonna be assumed, many
 defaults values would be taken... but hey! You will get something at the end.
 Does it have any value? maybe, only time will tell...
 ...
