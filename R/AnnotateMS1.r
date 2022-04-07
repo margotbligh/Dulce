@@ -1,9 +1,9 @@
 ## Toolbox of the package
 
 
-#' Fetch: find and group picks
+#' Fetch: Find and Group Picks
 #'
-#' @description This functions is a robust pipeline that merges the 
+#' @description This functions is part of the AnnotateMS1 pipeline and merges the 
 #' \code{findChromPeaks()} function and \code{groupChromPeaks()} function. 
 #' 
 #' @param data  \code{XCMSnExp} object
@@ -14,16 +14,12 @@
 #' 
 #' @export
 #'  
-#' @details 
-#' Dobie dobie doo diroo diroo
-#' 
-#' 
 #' @examples
 #' # Examples have to be made with a toy data object.
 #' 
 #' @seealso 
-#' xcms::CentWaveParam()
-#' 
+#' xcms::CentWaveParam
+#' Dulce_AnnotateMS1
 Dulce_fetch = function(data, 
                        cwp=NULL, 
                        pdp=NULL, 
@@ -70,7 +66,9 @@ Dulce_fetch = function(data,
 
 #' to_xcmsSet: transforms a \code{XCMSnExp} object into a \code{xcmsSet} object. 
 #'
-#' @description Da da da doobie doo da da
+#' @description This functions is part of the AnnotateMS1 pipeline and transforms 
+#' a \code{XCMSnExp} object into a \code{xcmsSet} object. I will also classify and name
+#' the given samples if no name or grouping class is specified.
 #' 
 #' @param data  \code{XCMSnExp} object.
 #' @param names Character vector with length equals to the amount of samples. It defines the identifier of each sample. 
@@ -79,16 +77,16 @@ Dulce_fetch = function(data,
 #' If NULL (default), it defines an "Unclassified" group for all samples.
 #' 
 #' @return \code{xcmsSet} object.
+#' 
 #' @export
-#'  
-#' @details 
-#' Dobie dobie doo diroo diroo
+#' 
 #' 
 #' @examples
 #' # Examples have to be made with a toy data object.
 #' 
 #' @seealso 
 #' xcms::xcmsSet
+#' Dulce_AnnotateMS1
 #' 
 Dulce_to_xcmsSet = function(data, names=NULL, classes=NULL){
   
@@ -121,12 +119,12 @@ Dulce_to_xcmsSet = function(data, names=NULL, classes=NULL){
 #' 
 #' @export
 #'  
-#' @details Dobie dobie doo diroo diroo
 #' 
 #' @examples
 #' # Examples have to be made with a toy data object.
 #' 
 #' @seealso
+#' Dulce_AnnotateMS1
 #' 
 Dulce_find = function(data, isotopes=T, adducts=T, 
                       perfwhm=0.5, mzabs=0.01, cor_eic_th=0.75,
@@ -154,7 +152,8 @@ Dulce_find = function(data, isotopes=T, adducts=T,
 
 #' Trim Isotopes
 #'
-#' @description This functions receives a \code{xsAnnotate} object and trims its isotopes,
+#' @description This functions is part of the AnnotateMS1 pipeline and 
+#' receives a \code{xsAnnotate} object and trims its isotopes,
 #' leaving only the rows with no isotopes, and collapsing those with isotopes into one row 
 #' (annotating those which were found in the "isotopes" column). 
 #' 
@@ -162,16 +161,16 @@ Dulce_find = function(data, isotopes=T, adducts=T,
 #' @param rtmin Minimum retention time value (in seconds) from which scans should be considered.
 #' @param rtmax Maximum retention time value (in seconds) to which scans should be considered.
 #' 
-#' @return data.frame
+#' @return \code[data.frame] object.
 #' 
 #' @export
 #'  
-#' @details Dobie dobie doo diroo diroo
 #' 
 #' @examples
 #' # Examples have to be made with a toy data object.
 #' 
 #' @seealso
+#' Dulce_AnnotateMS1
 #' 
 Dulce_trimIsotopes = function(data, rtmin=0, rtmax=Inf){
   
@@ -200,7 +199,8 @@ Dulce_trimIsotopes = function(data, rtmin=0, rtmax=Inf){
 #' 
 #' @include utils.r
 #' 
-#' @description This functions receives a \code{data.frame} object and merges it with the 
+#' @description This functions is part of the AnnotateMS1 pipeline and
+#' receives a \code{data.frame} object and merges it with the 
 #' output of \code{glycanPredict::predictGlycans()} function. \code{data} must have a
 #' 'mzmin' and a 'mzmax' columns. 
 #' 
@@ -212,13 +212,12 @@ Dulce_trimIsotopes = function(data, rtmin=0, rtmax=Inf){
 #' @return data.frame
 #' 
 #' @export
-#'  
-#' @details Dobie dobie doo diroo diroo
 #' 
 #' @examples
 #' # Examples have to be made with a toy data object.
 #' 
 #' @seealso
+#' Dulce_AnnotateMS1
 #' 
 Dulce_annotate = function(data, pgp=NULL,
                           ppm=NULL, mzabs=NULL){
@@ -268,7 +267,7 @@ Dulce_annotate = function(data, pgp=NULL,
 #' Annotate glycans in MS1 data
 #' 
 #' 
-#' @description Run the complete pipeline. Lots of things are gonna be assumed, many
+#' @description AnnotateMS1 pipeline. The complete pipeline. Lots of things are gonna be assumed, many
 #' defaults values would be taken... but hey! You will get something at the end.
 #' Does it have any value? maybe, only time will tell...
 #' ...
@@ -311,18 +310,22 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
   
   if (class(data) %in% c("OnDiskMSnExp","MSnExp")){
     message("Dulce note: executing Dulce_fetch function. Bip Bop... Bip Bop...")
+    data = tryCatch(Dulce_fetch(data, cwp=cwp, pdp=pdp, return_everything=T), 
+                    error=function(e) {message("Dulce_fetch() did not work due to the following error:\n", e); data})
+    
+    
     if (output == "all"){
-      data = Dulce_fetch(data, cwp=cwp, pdp=pdp, return_everything=T)
       data_all$peaks = data$peaks
       data_all$features = data$features
       data_all$XCMSnExp = data$data
       data = data$data
     } else if (output == "main"){
-      data = Dulce_fetch(data, cwp=cwp, pdp=pdp, return_everything=F)
-      data_main$XCMSnExp = data
+      data_main$XCMSnExp = data$data
+      data = data$data
     } else if (output == "last"){
-      data = Dulce_fetch(data, cwp=cwp, pdp=pdp, return_everything=F)
+      data = data$data
     }
+    
   } else {
     message("Dulce warning: 'data' not from 'OnDiskMSnExp' or 'MSnExp' class.")
     message("Dulce warning: trying next step in pipeline, Dulce_to_xcmsSet().")
@@ -330,7 +333,10 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
   
   if (class(data)=="XCMSnExp"){
     message("Dulce note: executing Dulce_to_xcmsSet function. Diroo... Diroo Diroo... ")
-    data = Dulce_to_xcmsSet(data, names, classes)
+    data = tryCatch(Dulce_to_xcmsSet(data, names, classes), 
+                    error=function(e) {message("Dulce_to_xcms() did not work due to the following error:\n", e); data})
+    
+    
     if (output == "all"){data_all$xcmsSet = data}
     } else {
       message("Dulce warning: 'data' not from 'XCMSnExp' class.")
@@ -340,9 +346,12 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
   if (class(data)=="xcmsSet"){
     message("Dulce note: executing Dulce_find function. Daroo bip... daroo bop... ")
     message("Dulce rants: I dont like this functions :c It needs to be improved.")
-    data = Dulce_find(data, isotopes=isotopes, adducts=adducts, 
-                     perfwhm=perfwhm, mzabs=mzabs.find, cor_eic_th=cor_eic_th,
-                     polarity=polarity)
+    data = tryCatch(Dulce_find(data, isotopes=isotopes, adducts=adducts, 
+                              perfwhm=perfwhm, mzabs=mzabs.find, cor_eic_th=cor_eic_th,
+                              polarity=polarity), 
+                    error=function(e) {message("Dulce_find() did not work due to the following error:\n", e); data})
+    
+    
     if (output == "all"){data_all$xsAnnotate = data}
     } else {
       message("Dulce warning: 'data' not from 'xcmsSet' class.")
@@ -351,7 +360,10 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
    
   if (class(data)=="xsAnnotate"){
     message("Dulce note: executing Dulce_trimIsotopes function. Beep... clink...")
-    data = Dulce_trimIsotopes(data, rtmin=rtmin, rtmax=rtmax)
+    data = tryCatch(Dulce_trimIsotopes(data, rtmin=rtmin, rtmax=rtmax), 
+                    error=function(e) {message("Dulce_trimIsotopes() did not work due to the following error:\n", e); data})
+    
+    
     if (output == "all"){data_all$trimmedIsotopes = data}
     } else {
       message("Dulce warning: 'data' not from 'xsAnnotate' class.")
@@ -360,7 +372,10 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
     
   if (class(data)=="data.frame"){
     message("Dulce note: executing Dulce_annotate function. Wooosh! Birup... Birup... pa!")
-    data = Dulce_annotate(data, pgp=pgp, ppm=ppm, mzabs=mzabs)
+    data = tryCatch(Dulce_annotate(data, pgp=pgp, ppm=ppm, mzabs=mzabs), 
+                    error=function(e) {message("Dulce_annotate() did not work due to the following error:\n", e); data})
+    
+    
     if (output == "all"){data_all$Annotated = data}
     else if (output == "main"){data_main$Annotated = data} 
     
