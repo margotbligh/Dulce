@@ -24,13 +24,10 @@ Dulce_find(
 I will still use it in the main function, but major changes
 have to be made.
 }
-\details{
-Dobie dobie doo diroo diroo
-}
 \examples{
 # Examples have to be made with a toy data object.
 
 }
 \seealso{
-
+Dulce_AnnotateMS1
 }

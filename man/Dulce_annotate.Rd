@@ -19,17 +19,15 @@ Dulce_annotate(data, pgp = NULL, ppm = NULL, mzabs = NULL)
 data.frame
 }
 \description{
-This functions receives a \code{data.frame} object and merges it with the
+This functions is part of the AnnotateMS1 pipeline and
+receives a \code{data.frame} object and merges it with the
 output of \code{glycanPredict::predictGlycans()} function. \code{data} must have a
 'mzmin' and a 'mzmax' columns.
-}
-\details{
-Dobie dobie doo diroo diroo
 }
 \examples{
 # Examples have to be made with a toy data object.
 
 }
 \seealso{
-
+Dulce_AnnotateMS1
 }

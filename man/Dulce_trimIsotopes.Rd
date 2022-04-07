@@ -14,20 +14,18 @@ Dulce_trimIsotopes(data, rtmin = 0, rtmax = Inf)
 \item{rtmax}{Maximum retention time value (in seconds) to which scans should be considered.}
 }
 \value{
-data.frame
+\code\link{data.frame} object.
 }
 \description{
-This functions receives a \code{xsAnnotate} object and trims its isotopes,
+This functions is part of the AnnotateMS1 pipeline and
+receives a \code{xsAnnotate} object and trims its isotopes,
 leaving only the rows with no isotopes, and collapsing those with isotopes into one row
 (annotating those which were found in the "isotopes" column).
-}
-\details{
-Dobie dobie doo diroo diroo
 }
 \examples{
 # Examples have to be made with a toy data object.
 
 }
 \seealso{
-
+Dulce_AnnotateMS1
 }

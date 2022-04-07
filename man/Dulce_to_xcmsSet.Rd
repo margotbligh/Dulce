@@ -19,10 +19,9 @@ If NULL (default), it defines an "Unclassified" group for all samples.}
 \code{xcmsSet} object.
 }
 \description{
-Da da da doobie doo da da
-}
-\details{
-Dobie dobie doo diroo diroo
+This functions is part of the AnnotateMS1 pipeline and transforms
+a \code{XCMSnExp} object into a \code{xcmsSet} object. I will also classify and name
+the given samples if no name or grouping class is specified.
 }
 \examples{
 # Examples have to be made with a toy data object.
@@ -30,4 +29,5 @@ Dobie dobie doo diroo diroo
 }
 \seealso{
 xcms::xcmsSet
+Dulce_AnnotateMS1
 }
