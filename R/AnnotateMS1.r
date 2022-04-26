@@ -1,6 +1,3 @@
-## Toolbox of the package
-
-
 #' Fetch: Find and Group Picks
 #'
 #' @description This functions is part of the AnnotateMS1 pipeline and merges the 
@@ -9,8 +6,8 @@
 #' @param data  \code{XCMSnExp} object
 #' @param cwp   \code{CentWaveParam()} object. If not given, default \code{CentWaveParam()} values are used. 
 #' @param pdp   \code{PeakDensityParam()} object. If not given, default \code{PeakDensityParam()} values are used.
-#' @param return_everything Logical value. If FALSE, (default) a \code{XCMSnExp} object is returned. 
-#' If TRUE, a list, with (1) \code{XCMSnExp} object, (2) chromPeaks data.frame and (3) featureDefinitions data.frame, is returned.
+#' @param return_everything Logical value. If FALSE (default), a \code{XCMSnExp} object is returned. 
+#' If TRUE, a list, with (1) \code{XCMSnExp} object, (2) chromPeaks data frame and (3) featureDefinitions data frame, is returned.
 #' 
 #' @export
 #'  
@@ -20,11 +17,11 @@
 #' @seealso 
 #' xcms::CentWaveParam
 #' Dulce_AnnotateMS1
-Dulce_fetch = function(data, 
+Dulce_pickGroup = function(data, 
                        cwp=NULL, 
                        pdp=NULL, 
                        return_everything=F){
-  
+
   if (!class(data) %in% c("OnDiskMSnExp","MSnExp")){
     stop("Dulce error: 'data' is not from 'OnDiskMSnExp' or 'MSnExp' class. Check for ?readMSData.")
   }
@@ -45,21 +42,18 @@ Dulce_fetch = function(data,
     message("Dulce warning: No sample groups were defined. One group under the name of 'Ungrouped' will be created.")}
   
   # Fetch 
-  suppressMessages({
-  processed_data = xcms::findChromPeaks(data, param=cwp) %>% xcms::groupChromPeaks(param=pdp)
-  })
-  message("Peaks picked and grouped!")
+  data = xcms::findChromPeaks(data, param=cwp) %>% xcms::groupChromPeaks(param=pdp)
   
   if (return_everything){
-    peaks_data = as.data.frame(processed_data@msFeatureData[["chromPeaks"]])
-    features_data = as.data.frame(processed_data@msFeatureData[["featureDefinitions"]])
+    peaks_data = as.data.frame(data@msFeatureData[["chromPeaks"]])
+    features_data = as.data.frame(data@msFeatureData[["featureDefinitions"]])
     
-    return(list(data=processed_data, 
+    return(list(data=data, 
                 peaks=peaks_data, 
                 features=features_data))
   }
   
-  return(processed_data)
+  return(data)
 }
 
 
@@ -193,7 +187,7 @@ Dulce_trimIsotopes = function(data, rtmin=0, rtmax=Inf){
   return(data)
 }
 
-
+?between
 
 #' Annotate putative glycans
 #' 
@@ -205,7 +199,7 @@ Dulce_trimIsotopes = function(data, rtmin=0, rtmax=Inf){
 #' 'mzmin' and a 'mzmax' columns. 
 #' 
 #' @param data \code{data.frame} object with 'mzmin' and 'mzmax' columns. 
-#' @param pgp \code{predictGlycansParams()} object.  
+#' @param pgp \code{predictGlycansParam()} object.  
 #' @param ppm M/z range for putative glycans in ppm units.
 #' @param mzabs M/z range for putative glycans in absolute units. Changed to \code{NULL} if both ppm and mzabs are specified.
 #' 
@@ -257,7 +251,13 @@ Dulce_annotate = function(data, pgp=NULL,
   
   predicted = data.table::foverlaps(data,predicted) %>% 
     tidyr::drop_na(name) %>%
-    as.data.frame()
+    as.data.frame() %>% 
+    dplyr::rename(mz.predicted=mz,
+                  mzmin.predicted=mzmin,
+                  mzmax.predicted=mzmax,
+                  mz=i.mz,
+                  mzmin=i.mzmin,
+                  mzmax=i.mzmax)
   
   return(predicted)
 }
