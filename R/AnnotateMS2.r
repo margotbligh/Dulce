@@ -16,7 +16,7 @@ Dulce_MS2SpectraExtract = function(data, features, annotations){
   chromPeaks(data) = chromPeaks(features)
   featureDefinition = featureDefinitions(features)
   featureDefinition_filtered = featureDefinition[paste0(featureDefinition$mzmed,"_", featureDefinition$rtmed) %in%
-                                                   paste0(annotations$i.mz,"_",annotations$rt),]
+                                                   paste0(annotations$mz,"_",annotations$rt),]
   
   featureDefinitions(data) = featureDefinition_filtered
   
@@ -25,21 +25,9 @@ Dulce_MS2SpectraExtract = function(data, features, annotations){
   return(MS2Spectra)
 }
 
-# This should be in a different script file.
-combineSpectraParam = setClass("combineSpectraParam",
-                               slots=c(
-                                 fcol="character",
-                                 mzd="numeric",
-                                 intensityFun="ANY"
-                               ),
-                               prototype=prototype(
-                                 fcol="peak_id",
-                                 mzd=0.005,
-                                 intensityFun=mean
-                               ))
 
 #' MS/MS Spectra Combination and Normalization
-#'
+#' @include classes.r
 #' @description 
 #' @param
 #' @export

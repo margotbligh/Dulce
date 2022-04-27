@@ -1,26 +1,26 @@
-#' Fetch: Find and Group Picks
+#' Pick and Group Peaks
 #'
-#' @description This functions is part of the AnnotateMS1 pipeline and merges the 
-#' \code{findChromPeaks()} function and \code{groupChromPeaks()} function. 
+#' @description This function picks and groups peaks using the `findChromPeaks()` 
+#' and `groupChromPeaks()` functions from the `xcms` package.  
 #' 
-#' @param data  \code{XCMSnExp} object
-#' @param cwp   \code{CentWaveParam()} object. If not given, default \code{CentWaveParam()} values are used. 
-#' @param pdp   \code{PeakDensityParam()} object. If not given, default \code{PeakDensityParam()} values are used.
-#' @param return_everything Logical value. If FALSE (default), a \code{XCMSnExp} object is returned. 
-#' If TRUE, a list, with (1) \code{XCMSnExp} object, (2) chromPeaks data frame and (3) featureDefinitions data frame, is returned.
+#' @param data  `XCMSnExp` object.
+#' @param cwp   `CentWaveParam()` object. If not given, default 
+#' `CentWaveParam()` values are used. 
+#' @param pdp   `PeakDensityParam()` object. If not given, default 
+#' `PeakDensityParam()` values are used.
+#' @param return_everything Logical value.
 #' 
-#' @export
+#' @return If `return_everything` is set to FALSE (default), a `XCMSnExp` object is 
+#' returned. If TRUE, a list with (1) `XCMSnExp` object, (2) chromPeaks data.frame 
+#' and (3) featureDefinitions data.frame, is returned.
 #'  
 #' @examples
 #' # Examples have to be made with a toy data object.
 #' 
-#' @seealso 
-#' xcms::CentWaveParam
-#' Dulce_AnnotateMS1
-Dulce_pickGroup = function(data, 
-                       cwp=NULL, 
-                       pdp=NULL, 
-                       return_everything=F){
+Dulce_pickGroupPeaks = function(data, 
+                                cwp=NULL, 
+                                pdp=NULL, 
+                                return_everything=F){
 
   if (!class(data) %in% c("OnDiskMSnExp","MSnExp")){
     stop("Dulce error: 'data' is not from 'OnDiskMSnExp' or 'MSnExp' class. Check for ?readMSData.")
@@ -41,7 +41,7 @@ Dulce_pickGroup = function(data,
     pdp@sampleGroups = rep("Ungrouped", nrow(data))
     message("Dulce warning: No sample groups were defined. One group under the name of 'Ungrouped' will be created.")}
   
-  # Fetch 
+  # Pick and Group
   data = xcms::findChromPeaks(data, param=cwp) %>% xcms::groupChromPeaks(param=pdp)
   
   if (return_everything){
@@ -57,23 +57,23 @@ Dulce_pickGroup = function(data,
 }
 
 
-
-#' to_xcmsSet: transforms a \code{XCMSnExp} object into a \code{xcmsSet} object. 
+#' Transform \code{XCMSnExp} object into a \code{xcmsSet} object. 
 #'
-#' @description This functions is part of the AnnotateMS1 pipeline and transforms 
-#' a \code{XCMSnExp} object into a \code{xcmsSet} object. I will also classify and name
-#' the given samples if no name or grouping class is specified.
+#' @description This functions transforms a \code{XCMSnExp} object into a 
+#' \code{xcmsSet} object. I will also classify and name the given samples if no 
+#' name or grouping class is specified.
 #' 
 #' @param data  \code{XCMSnExp} object.
-#' @param names Character vector with length equals to the amount of samples. It defines the identifier of each sample. 
-#' If NULL (default), it generates names according to: \code{sprintf('sample_\%03d', 1:nrow(data))}.
-#' @param classes Character vector with length equals to the amount of samples. It defines the main grouping of the samples.
-#' If NULL (default), it defines an "Unclassified" group for all samples.
+#' @param names Character vector with length equals to the amount of samples. 
+#' It defines the identifier of each sample. If NULL (default), it generates 
+#' names according to: \code{sprintf('sample_\%03d', 1:nrow(data))}.
+#' @param classes Character vector with length equals to the amount of samples. 
+#' It defines the main grouping of the samples. If NULL (default), it defines an
+#' "Unclassified" group for all samples.
 #' 
 #' @return \code{xcmsSet} object.
 #' 
 #' @export
-#' 
 #' 
 #' @examples
 #' # Examples have to be made with a toy data object.
@@ -94,8 +94,8 @@ Dulce_to_xcmsSet = function(data, names=NULL, classes=NULL){
     message("Dulce warning: No sample class given. One class under the name of 'Unclassified' will be created.")
   }
   
-  sampnames(data_xcmsSet) = names
-  sampclass(data_xcmsSet) = classes
+  xcms::sampnames(data_xcmsSet) = names
+  xcms::sampclass(data_xcmsSet) = classes
   
   return(data_xcmsSet)
 }
@@ -120,25 +120,22 @@ Dulce_to_xcmsSet = function(data, names=NULL, classes=NULL){
 #' @seealso
 #' Dulce_AnnotateMS1
 #' 
-Dulce_find = function(data, isotopes=T, adducts=T, 
-                      perfwhm=0.5, mzabs=0.01, cor_eic_th=0.75,
+Dulce_find = function(data,
+                      perfwhm=0.5, 
+                      cor_eic_th=0.75,
                       polarity=NULL){
   
   if (is.null(polarity)){
-    stop("Dulce error: NULL polarity? Check it twice.")
+    stop("Dulce error: Please specify polarity.")
   }
   
-  data = CAMERA::xsAnnotate(data) %>% CAMERA::groupFWHM(perfwhm = perfwhm)
-  
-  if (isotopes){
-    data = data %>% CAMERA::findIsotopes(mzabs=mzabs) %>% 
-      CAMERA::groupCorr(cor_eic_th=cor_eic_th) 
-  }
-  
-  if (adducts){
-    data = data %>% CAMERA::findAdducts(polarity=polarity)
-  }
-  
+  data = data %>% 
+    CAMERA::xsAnnotate() %>% 
+    CAMERA::groupFWHM(perfwhm=perfwhm) %>% 
+    CAMERA::findIsotopes() %>% 
+    CAMERA::groupCorr(cor_eic_th=cor_eic_th) %>% 
+    CAMERA::findAdducts(polarity=polarity)
+
   return(data)
 }
 
@@ -170,7 +167,9 @@ Dulce_trimIsotopes = function(data, rtmin=0, rtmax=Inf){
   
   if (class(data)!="xsAnnotate"){stop("Dulce error: 'data' object is not from 'xsAnnotate' class.")}
   
-  data = CAMERA::getPeaklist(data) %>% dplyr::filter(data.table::between(rt, !!rtmin, !!rtmax))
+  data = data %>% 
+    CAMERA::getPeaklist() %>% 
+    dplyr::filter(dplyr::between(rt, !!rtmin, !!rtmax))
   
   data_isotopes = data %>% 
     dplyr::filter(isotopes!="") %>% 
@@ -187,7 +186,6 @@ Dulce_trimIsotopes = function(data, rtmin=0, rtmax=Inf){
   return(data)
 }
 
-?between
 
 #' Annotate putative glycans
 #' 
@@ -213,7 +211,7 @@ Dulce_trimIsotopes = function(data, rtmin=0, rtmax=Inf){
 #' @seealso
 #' Dulce_AnnotateMS1
 #' 
-Dulce_annotate = function(data, pgp=NULL,
+Dulce_featuresAnnotate = function(data, pgp=NULL,
                           ppm=NULL, mzabs=NULL){
   
   if (!all(c("mzmin","mzmax") %in% colnames(data))){
@@ -292,8 +290,7 @@ Dulce_annotate = function(data, pgp=NULL,
 #' 
 Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
                        names=NULL, classes="Unclassified",
-                       isotopes=T, adducts=T,
-                       perfwhm=0.5, mzabs.find=0.01, cor_eic_th=0.75,
+                       perfwhm=0.5, cor_eic_th=0.75,
                        polarity=NULL,
                        rtmin=0, rtmax=Inf,
                        pgp=NULL, ppm=NULL, mzabs=NULL,
@@ -309,9 +306,9 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
   BiocParallel::register(SerialParam())
   
   if (class(data) %in% c("OnDiskMSnExp","MSnExp")){
-    message("Dulce note: executing Dulce_fetch function. Bip Bop... Bip Bop...")
-    data = tryCatch(Dulce_fetch(data, cwp=cwp, pdp=pdp, return_everything=T), 
-                    error=function(e) {message("Dulce_fetch() did not work due to the following error:\n", e); data})
+    message("Dulce note: executing Dulce_pickGroupPeaks function.")
+    data = tryCatch(Dulce_pickGroupPeaks(data, cwp=cwp, pdp=pdp, return_everything=T), 
+                    error=function(e) {message("Dulce_pickGroupPeaks() did not work due to the following error:\n", e); data})
     
     
     if (output == "all"){
@@ -332,7 +329,7 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
   }
   
   if (class(data)=="XCMSnExp"){
-    message("Dulce note: executing Dulce_to_xcmsSet function. Diroo... Diroo Diroo... ")
+    message("Dulce note: executing Dulce_to_xcmsSet function.")
     data = tryCatch(Dulce_to_xcmsSet(data, names, classes), 
                     error=function(e) {message("Dulce_to_xcms() did not work due to the following error:\n", e); data})
     
@@ -344,10 +341,9 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
     }
   
   if (class(data)=="xcmsSet"){
-    message("Dulce note: executing Dulce_find function. Daroo bip... daroo bop... ")
-    message("Dulce rants: I dont like this functions :c It needs to be improved.")
-    data = tryCatch(Dulce_find(data, isotopes=isotopes, adducts=adducts, 
-                              perfwhm=perfwhm, mzabs=mzabs.find, cor_eic_th=cor_eic_th,
+    message("Dulce note: executing Dulce_find function.")
+    data = tryCatch(Dulce_find(data, 
+                              perfwhm=perfwhm, cor_eic_th=cor_eic_th,
                               polarity=polarity), 
                     error=function(e) {message("Dulce_find() did not work due to the following error:\n", e); data})
     
@@ -359,7 +355,7 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
     }
    
   if (class(data)=="xsAnnotate"){
-    message("Dulce note: executing Dulce_trimIsotopes function. Beep... clink...")
+    message("Dulce note: executing Dulce_trimIsotopes function.")
     data = tryCatch(Dulce_trimIsotopes(data, rtmin=rtmin, rtmax=rtmax), 
                     error=function(e) {message("Dulce_trimIsotopes() did not work due to the following error:\n", e); data})
     
@@ -370,27 +366,27 @@ Dulce_AnnotateMS1 = function(data, cwp=NULL, pdp=NULL,
       message("Dulce warning: trying next step in pipeline, Dulce_annotate()")
     }
     
-  if (class(data)=="data.frame"){
-    message("Dulce note: executing Dulce_annotate function. Wooosh! Birup... Birup... pa!")
-    data = tryCatch(Dulce_annotate(data, pgp=pgp, ppm=ppm, mzabs=mzabs), 
-                    error=function(e) {message("Dulce_annotate() did not work due to the following error:\n", e); data})
+  if (any(class(data)=="data.frame")){
+    message("Dulce note: executing Dulce_featuresAnnotate function.")
+    data = tryCatch(Dulce_featuresAnnotate(data, pgp=pgp, ppm=ppm, mzabs=mzabs), 
+                    error=function(e) {message("Dulce_featuresAnnotate() did not work due to the following error:\n", e); data})
     
     
-    if (output == "all"){data_all$Annotated = data}
-    else if (output == "main"){data_main$Annotated = data} 
+    if (output == "all"){data_all$Annotated = data
+    } else if (output == "main"){data_main$Annotated = data} 
     
   } else {
-      message("Dulce warning: 'data' not even from 'data.frame' class. What did you give me?")
+      message("Dulce warning: 'data' not even from 'data.frame' class. Check data object.")
   }
   
   if (output == "all"){
-    message("Dulce note: returning a list with the product of all the steps I was able to do successfully.")
+    message("Dulce note: returning a list with the product of all the steps that were done successfully.")
     return(data_all)
   } else if (output == "main"){
     message("Dulce note: returning a list with an 'XCMSnExp' object (if possible) and the last achieved product.")
     return(data_main)
   } else if (output == "last"){
-    message("Dulce note: returning the last object I was able to produce.")
+    message("Dulce note: returning the last achieved object.")
     return(data)
   }
 }
