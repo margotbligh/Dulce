@@ -2,26 +2,28 @@
 % Please edit documentation in R/AnnotateMS1.r
 \name{Dulce_to_xcmsSet}
 \alias{Dulce_to_xcmsSet}
-\title{to_xcmsSet: transforms a \code{XCMSnExp} object into a \code{xcmsSet} object.}
+\title{Transform \code{XCMSnExp} object into a \code{xcmsSet} object.}
 \usage{
 Dulce_to_xcmsSet(data, names = NULL, classes = NULL)
 }
 \arguments{
 \item{data}{\code{XCMSnExp} object.}
 
-\item{names}{Character vector with length equals to the amount of samples. It defines the identifier of each sample.
-If NULL (default), it generates names according to: \code{sprintf('sample_\%03d', 1:nrow(data))}.}
+\item{names}{Character vector with length equals to the amount of samples.
+It defines the identifier of each sample. If NULL (default), it generates
+names according to: \code{sprintf('sample_\%03d', 1:nrow(data))}.}
 
-\item{classes}{Character vector with length equals to the amount of samples. It defines the main grouping of the samples.
-If NULL (default), it defines an "Unclassified" group for all samples.}
+\item{classes}{Character vector with length equals to the amount of samples.
+It defines the main grouping of the samples. If NULL (default), it defines an
+"Unclassified" group for all samples.}
 }
 \value{
 \code{xcmsSet} object.
 }
 \description{
-This functions is part of the AnnotateMS1 pipeline and transforms
-a \code{XCMSnExp} object into a \code{xcmsSet} object. I will also classify and name
-the given samples if no name or grouping class is specified.
+This functions transforms a \code{XCMSnExp} object into a
+\code{xcmsSet} object. I will also classify and name the given samples if no
+name or grouping class is specified.
 }
 \examples{
 # Examples have to be made with a toy data object.
