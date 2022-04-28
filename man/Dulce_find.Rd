@@ -4,15 +4,7 @@
 \alias{Dulce_find}
 \title{This function is the one I like the less.}
 \usage{
-Dulce_find(
-  data,
-  isotopes = T,
-  adducts = T,
-  perfwhm = 0.5,
-  mzabs = 0.01,
-  cor_eic_th = 0.75,
-  polarity = NULL
-)
+Dulce_find(data, perfwhm = 0.5, cor_eic_th = 0.75, polarity = NULL)
 }
 \arguments{
 \item{bla}{bla bla bla}

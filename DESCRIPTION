@@ -32,3 +32,5 @@ Imports:
 Collate: 
     'utils.r'
     'AnnotateMS1.r'
+    'classes.r'
+    'AnnotateMS2.r'
