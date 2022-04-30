@@ -2,11 +2,13 @@
 
 export(Dulce_AnnotateMS1)
 export(Dulce_MS2CombNorm)
+export(Dulce_MS2FeaturePlot)
 export(Dulce_MS2PrecursorMatch)
 export(Dulce_MS2SpectraExtract)
 export(Dulce_calculateMZDistances)
 export(Dulce_featuresAnnotate)
 export(Dulce_filterMZDistances)
 export(Dulce_find)
+export(Dulce_pickGroupPeaks)
 export(Dulce_to_xcmsSet)
 export(Dulce_trimIsotopes)

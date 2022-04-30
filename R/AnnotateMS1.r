@@ -2,7 +2,7 @@
 #'
 #' @description This function picks and groups peaks using the `findChromPeaks()` 
 #' and `groupChromPeaks()` functions from the `xcms` package.  
-#' 
+#' @export
 #' @param data  `XCMSnExp` object.
 #' @param cwp   `CentWaveParam()` object. If not given, default 
 #' `CentWaveParam()` values are used. 
