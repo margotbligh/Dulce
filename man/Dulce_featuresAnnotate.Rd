@@ -16,11 +16,11 @@ Dulce_featuresAnnotate(data, pgp = NULL, ppm = NULL, mzabs = NULL)
 \item{mzabs}{M/z range for putative glycans in absolute units. Changed to \code{NULL} if both ppm and mzabs are specified.}
 }
 \value{
-data.frame
+This function returns a \code{data.frame} object. It is the result of
+merging the putative glycans \code{data.frame} and the given features.
 }
 \description{
-This functions is part of the AnnotateMS1 pipeline and
-receives a \code{data.frame} object and merges it with the
+This functions receives a \code{data.frame} object and merges it with the
 output of \code{glycanPredict::predictGlycans()} function. \code{data} must have a
 'mzmin' and a 'mzmax' columns.
 }

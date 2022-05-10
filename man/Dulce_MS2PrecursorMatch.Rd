@@ -6,8 +6,19 @@
 \usage{
 Dulce_MS2PrecursorMatch(data, annotations)
 }
+\arguments{
+\item{data}{\code{MSpectra} object.}
+
+\item{annotations}{\code{data.frame} object with annotated MS features.}
+}
+\value{
+This function returns a \code{data.frame} with annotated MS/MS spectra.
+}
 \description{
-MS/MS Precursor Matching
+This function generates an annotated \code{data.frame} of the MS/MS
+spectra information with the precursor annotations. It uses the
+function \code{data.table::foverlaps()} on the mzmin and mzmax values of both
+groups of spectra.
 }
 \seealso{
 

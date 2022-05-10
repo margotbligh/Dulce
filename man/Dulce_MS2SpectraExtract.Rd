@@ -6,8 +6,18 @@
 \usage{
 Dulce_MS2SpectraExtract(data, features, annotations)
 }
+\arguments{
+\item{data}{\code{MSnBase} original data object. It must have msLevel=2 spectra.}
+
+\item{features}{\code{XCMSnExp} object with msLevel=1 and featured defined.}
+
+\item{annotations}{features annotated \code{data.frame} with mz values column.}
+}
+\value{
+This function returns a MSpectra object with all msLevel=2 spectra associated with the features annotated \code{data.frame}.
+}
 \description{
-MS/MS Spectra Extraction
+This function looks into an \code{MSnBase} object and extracts all MS/MS spectra related to MS1 features defined in the "annotations" object. It uses the \code{featureSpectra()} function.
 }
 \seealso{
 

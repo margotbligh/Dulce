@@ -7,23 +7,24 @@
 Dulce_to_xcmsSet(data, names = NULL, classes = NULL)
 }
 \arguments{
-\item{data}{\code{XCMSnExp} object.}
+\item{data}{\code{XCMSnExp} object}
 
 \item{names}{Character vector with length equals to the amount of samples.
-It defines the identifier of each sample. If NULL (default), it generates
-names according to: \code{sprintf('sample_\%03d', 1:nrow(data))}.}
+It defines the identifier of each sample. If \code{NULL} (default),
+it generates names according to: \code{sprintf('sample_\\\%03d', 1:nrow(data))}
+(sample_001, sample_002, etc).}
 
 \item{classes}{Character vector with length equals to the amount of samples.
-It defines the main grouping of the samples. If NULL (default), it defines an
-"Unclassified" group for all samples.}
+It defines the main grouping of the samples. If \code{NULL} (default), it defines
+an "Unclassified" group for all samples.}
 }
 \value{
-\code{xcmsSet} object.
+This function returns a \code{xcmsSet} object.
 }
 \description{
-This functions transforms a \code{XCMSnExp} object into a
-\code{xcmsSet} object. I will also classify and name the given samples if no
-name or grouping class is specified.
+This functions transforms a \code{XCMSnExp} object into a \code{xcmsSet}
+object. It will also classify and name the given samples if no name or
+grouping class is specified, making the corresponding warnings.
 }
 \examples{
 # Examples have to be made with a toy data object.

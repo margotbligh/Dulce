@@ -6,8 +6,18 @@
 \usage{
 Dulce_MS2CombNorm(data, csp = NULL, norm.method = "max")
 }
+\arguments{
+\item{data}{\code{MSpectra} object with msLevel=2 spectra.}
+
+\item{csp}{\code{combineSpectraParam()} object.}
+
+\item{`norm.method`}{normalization method for \code{MSnbase::normalise()} function.}
+}
+\value{
+This function returns normalized and combined MS/MS spectra as \code{MSpectra} object.
+}
 \description{
-MS/MS Spectra Combination and Normalization
+This function cleans, combines and normalizes MS/MS spectra.
 }
 \seealso{
 

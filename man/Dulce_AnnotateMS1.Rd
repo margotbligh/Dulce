@@ -22,26 +22,56 @@ Dulce_AnnotateMS1(
 )
 }
 \arguments{
-\item{data}{any class of object... Dulce message: Try me out baby.}
+\item{data}{Object of any of these classes: MSnExp, OnDiskMSnExp, XCMSnExp, xcmsSet,
+xsAnnotate, data.frame.}
 
-\item{output}{Character that determines what the function will return.
+\item{cwp}{CentWaveParam() object. If not given, default CentWaveParam() values are used.}
+
+\item{pdp}{PeakDensityParam() object. If not given, default PeakDensityParam() values are used.}
+
+\item{names}{Character vector with length equals to the amount of samples. It defines
+the identifier of each sample. If \code{NULL} (default), it generates names according
+to: \code{sprintf('sample_\\\%03d', 1:nrow(data))} (sample_001, sample_002, etc).}
+
+\item{classes}{Character vector with length equals to the amount of samples. It defines the main grouping of the samples. If \code{NULL} (default), it defines an "Unclassified" group for all samples.}
+
+\item{perfwhm}{numeric value. It will be passed into \code{CAMERA::groupFWHM()} function.}
+
+\item{cor_eic_th}{numeric value. It will be passed into \code{CAMERA::groupCorr()} function.}
+
+\item{polarity}{character value, either "positive" or "negative". It will be passed into \code{CAMERA::findAdducts()} function.}
+
+\item{rtmin}{Numeric value specifying the lower retention time boundary.}
+
+\item{rtmax}{Numeric value specifying the higher retention time boundary.}
+
+\item{pgp}{\code{predictGlycansParam()} object. If not given, default predictGlycansParam() values are used.}
+
+\item{ppm}{M/z range for putative glycans in ppm units.}
+
+\item{mzabs}{M/z range for putative glycans in absolute units. Changed to \code{NULL} if both, ppm and mzabs, are specified.}
+
+\item{output}{Character object that determines what the function will return.
 If \code{"main"}, a list with an \code{'XCMSnExp'} object (if possible) and the last achieved product will be returned.
 If \code{"all"}, a list with all the partial products along the pipeline is returned.
 If \code{"last"}, only the last achieved product will be returned.}
 }
 \value{
-The last produced object before an error (or at least that is the idea)
+If no errors occurs during the execution of the function, then the output depends on th
+\code{output} argument. If \code{all}, the function will return every partial product achieved. If \code{main},
+XCMSnExp object (with peaks picked and grouped) and an annotated putative glycans \code{data.frame}  are
+returned. If \code{last}, only the annotated putative glycans \code{data.frame} is returned. If an error occur
+during the execution of the function, it saves the last partial product achieved, and tries to return
+the specified output option.
 }
 \description{
-AnnotateMS1 pipeline. The complete pipeline. Lots of things are gonna be assumed, many
-defaults values would be taken... but hey! You will get something at the end.
-Does it have any value? maybe, only time will tell...
-...
-And you, of course you have to tell if it has value or not (?). You are the one who should know!
-Read some literature, don't be lazy.
+This function constitutes the complete MS Data Annotation Pipeline. It is robust and smart
+enough to \emph{understand} what kind of data is being inputed and continue the pipeline from the appropriate
+step. It is constructed in such a way that when an error occurs, the last correctly executed product is
+saved and returned.
 }
 \details{
-Dobie dobie doo diroo diroo
+
 }
 \examples{
 # Examples have to be made with a toy data object.

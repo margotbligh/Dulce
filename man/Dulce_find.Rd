@@ -2,19 +2,26 @@
 % Please edit documentation in R/AnnotateMS1.r
 \name{Dulce_find}
 \alias{Dulce_find}
-\title{This function is the one I like the less.}
+\title{Find Isotopes and adducts.}
 \usage{
 Dulce_find(data, perfwhm = 0.5, cor_eic_th = 0.75, polarity = NULL)
 }
 \arguments{
-\item{bla}{bla bla bla}
+\item{data}{\code{xcmsSet} object.}
+
+\item{perfwhm}{numeric value. It will be passed into \code{CAMERA::groupFWHM()} function}
+
+\item{cor_eic_th}{numeric value. It will be passed into \code{CAMERA::groupCorr()} function}
+
+\item{polarity}{character, either "positive" or "negative". It will be passed into
+\code{CAMERA::groupCorr()} function}
 }
 \value{
-
+This function returns an \code{xsAnnotate} object with annotated isotopes and adducts.
 }
 \description{
-I will still use it in the main function, but major changes
-have to be made.
+This function uses the CAMERA package to annotate the isotopes
+and adducts of every feature.
 }
 \examples{
 # Examples have to be made with a toy data object.
