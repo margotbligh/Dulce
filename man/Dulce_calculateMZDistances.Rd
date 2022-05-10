@@ -6,8 +6,19 @@
 \usage{
 Dulce_calculateMZDistances(data, annotations, MSpectra)
 }
+\arguments{
+\item{data}{\code{MSnBase} object}
+
+\item{annotations}{\code{data.frame} with annotated MS/MS spectra.}
+
+\item{MSpectra}{\code{MSpectra} object with MS/MS spectra.}
+}
+\value{
+This function returns a \code{data.frame} object with mzDifferences,
+their respective precursor, and the fragments used to calculate that distance.
+}
 \description{
-MS/MS Distances Calculation
+This function calculate mz differences between MS/MS fragments.
 }
 \seealso{
 

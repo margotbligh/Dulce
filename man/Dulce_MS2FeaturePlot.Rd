@@ -6,8 +6,18 @@
 \usage{
 Dulce_MS2FeaturePlot(MSpectra, distances, peakId)
 }
+\arguments{
+\item{MSpectra}{\code{MSpectra} object with MS/MS spectra.}
+
+\item{distances}{\code{data.frame} with significant differences annotated with spectrum identifier.}
+
+\item{peakId}{Peak identifier of the peak that is going to be plotted.}
+}
+\value{
+This function returns a \code{ggplot2} object.
+}
 \description{
-MS/MS Feature plotting
+This function plots each MS/MS spectra, highlighting the meaningful differences.
 }
 \seealso{
 
