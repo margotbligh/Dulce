@@ -28,7 +28,8 @@ Imports:
 	glycanPredict,
 	xcms,
 	CAMERA,
-	glycanPredict
+	BiocParallel,
+	Biobase
 Collate: 
     'utils.r'
     'AnnotateMS1.r'

@@ -3,6 +3,9 @@
 #' @description This function picks and groups peaks using the `findChromPeaks()`
 #' and `groupChromPeaks()` functions from the `xcms` package.
 #' @export
+#' @import xcms
+#' @import tidyverse
+#'
 #' @param data  `XCMSnExp` object.
 #' @param cwp   `CentWaveParam()` object. If not given, default
 #' `CentWaveParam()` values are used.
@@ -81,6 +84,7 @@ Dulce_pickGroupPeaks = function(data,
 #' @return This function returns a `xcmsSet` object.
 #'
 #' @export
+#' @import xcms
 #'
 #' @examples
 #' # Examples have to be made with a toy data object.
@@ -127,6 +131,8 @@ Dulce_to_xcmsSet = function(data, names=NULL, classes=NULL){
 #' This function returns an `xsAnnotate` object with annotated isotopes and adducts.
 #'
 #' @export
+#' @import CAMERA
+#' @import tidyverse
 #'
 #' @examples
 #' # Examples have to be made with a toy data object.
@@ -174,6 +180,8 @@ Dulce_find = function(data,
 #' of the trimmed isotopes.
 #'
 #' @export
+#' @import tidyverse
+#' @import CAMERA
 #'
 #' @examples
 #' # Examples have to be made with a toy data object.
@@ -227,6 +235,9 @@ Dulce_trimIsotopes = function(data, rtmin=0, rtmax=Inf){
 #' merging the putative glycans `data.frame` and the given features.
 #'
 #' @export
+#' @import glycanPredict
+#' @import data.table
+#' @import tidyverse
 #'
 #' @examples
 #' # Examples have to be made with a toy data object.
@@ -328,6 +339,7 @@ Dulce_featuresAnnotate = function(data, pgp=NULL,
 #'  the specified output option.
 #'
 #' @export
+#' @import BiocParallel
 #'
 #' @details
 #'

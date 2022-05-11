@@ -8,6 +8,8 @@
 #' @return This function returns a MSpectra object with all msLevel=2 spectra associated with the features annotated `data.frame`.
 #'
 #' @export
+#' @import xcms
+#'
 #' @seealso
 #'
 Dulce_MS2SpectraExtract = function(data, features, annotations){
@@ -21,15 +23,15 @@ Dulce_MS2SpectraExtract = function(data, features, annotations){
   data = as(data, "XCMSnExp")
 
   # Overwrite "data" peaks and features for the ones in "features"
-  chromPeaks(data) = chromPeaks(features)
-  featureDefinition = featureDefinitions(features)
+  chromPeaks(data) = xcms::chromPeaks(features)
+  featureDefinition = xcms::featureDefinitions(features)
   featureDefinition_filtered = featureDefinition[paste0(featureDefinition$mzmed,"_", featureDefinition$rtmed) %in%
                                                    paste0(annotations$mz,"_",annotations$rt),]
 
   featureDefinitions(data) = featureDefinition_filtered
 
   # Get msLevel=2 spectra that is related to defined features.
-  MS2Spectra = featureSpectra(data, msLevel = 2, expandMz = 0.005)
+  MS2Spectra = xcms::featureSpectra(data, msLevel = 2, expandMz = 0.005)
 
   return(MS2Spectra)
 }
@@ -45,6 +47,8 @@ Dulce_MS2SpectraExtract = function(data, features, annotations){
 #' @return This function returns normalized and combined MS/MS spectra as `MSpectra` object.
 #'
 #' @export
+#' @import MSnbase
+#'
 #' @seealso
 #'
 Dulce_MS2CombNorm = function(data, csp=NULL, norm.method="max"){
@@ -55,8 +59,8 @@ Dulce_MS2CombNorm = function(data, csp=NULL, norm.method="max"){
   if (is.null(csp)){csp = combineSpectraParam()}
 
   # Clean, combine and normalize spectra from same precursor
-  data@listData = lapply(data, clean, all=T)
-  data = combineSpectra(data, fcol=csp@fcol, mzd=csp@mzd, intensityFun=csp@intensityFun)
+  data@listData = lapply(data, MSnbase::clean, all=T)
+  data = MSnbase::combineSpectra(data, fcol=csp@fcol, mzd=csp@mzd, intensityFun=csp@intensityFun)
   data@listData = lapply(data, MSnbase::normalise, method=norm.method)
 
   return(data)
@@ -75,13 +79,16 @@ Dulce_MS2CombNorm = function(data, csp=NULL, norm.method="max"){
 #' @return This function returns a `data.frame` with annotated MS/MS spectra.
 #'
 #' @export
+#' @import data.table
+#' @import tidyverse
+#'
 #' @seealso
 #'
 Dulce_MS2PrecursorMatch = function(data, annotations){
 
   # Gather spectra's precursor mz value and retention time.
-  precursorsMz = precursorMz(data)
-  precursorsRt = rtime(data)
+  precursorsMz = MSnbase::precursorMz(data)
+  precursorsRt = MSnbase::rtime(data)
 
   # Create data frame with precursor information
   precursorsData = data.frame(peakId = names(precursorsMz),
@@ -90,14 +97,14 @@ Dulce_MS2PrecursorMatch = function(data, annotations){
                               mzmin = precursorsMz - 0.0025,
                               mzmax = precursorsMz + 0.0025)
 
-  setDT(precursorsData)
-  setDT(annotations)
-  setkey(precursorsData, mzmin, mzmax)
+  data.table::setDT(precursorsData)
+  data.table::setDT(annotations)
+  data.table::setkey(precursorsData, mzmin, mzmax)
 
   # Overlap annotations and precursors
-  data = foverlaps(annotations, precursorsData) %>%
+  data = data.table::foverlaps(annotations, precursorsData) %>%
     tidyr::drop_na(peakId) %>%
-    filter(rtime > rtmin - 15 & rtime < rtmax + 15)
+    dplyr::filter(rtime > rtmin - 15 & rtime < rtmax + 15)
 
   return(data)
 }
@@ -113,15 +120,18 @@ Dulce_MS2PrecursorMatch = function(data, annotations){
 #' their respective precursor, and the fragments used to calculate that distance.
 #'
 #' @export
+#' @import tidyverse
+#' @import Biobase
+#'
 #' @seealso
 #'
 Dulce_calculateMZDistances = function(data, annotations, MSpectra){
 
   # Calculate differences
-  distances = lapply(MSpectra@listData, calc_distances) %>% bind_rows(.id="peakId")
+  distances = lapply(MSpectra@listData, calc_distances) %>% dplyr::bind_rows(.id="peakId")
 
   # Join differences with annotations
-  distances = dplyr::left_join(distances, annotations, by="peakId") %>%
+  distances = distances %>% dplyr::left_join(annotations, by="peakId") %>%
     dplyr::select(peakId, f1, f2, mzDifference, precursorMz, rtime, name, ion) %>%
     dplyr::distinct() %>%
     dplyr::mutate(name_ion = paste0(name, ":", ion)) %>%
@@ -133,7 +143,7 @@ Dulce_calculateMZDistances = function(data, annotations, MSpectra){
     gsub(".*\\.F|\\.S\\d+$", "", .) %>% as.numeric()
 
   # Join differences with samples
-  distances$sample = pData(data)$name[distances$sample]
+  distances$sample = Biobase::pData(data)$name[distances$sample]
 
   # Return data frame with annotated differnces between mz values.
   return(distances)
@@ -155,6 +165,8 @@ Dulce_calculateMZDistances = function(data, annotations, MSpectra){
 #' on the significant differences that were present.
 #'
 #' @export
+#' @import tidyverse
+#'
 #' @seealso
 #'
 Dulce_filterMZDistances = function(data, sigdiff=NULL, n=NULL, mzdiff=NULL){
@@ -188,7 +200,7 @@ Dulce_filterMZDistances = function(data, sigdiff=NULL, n=NULL, mzdiff=NULL){
   # Identify significant differences
   for(i in 1:length(sigdiff.used)){
     data.filt.list[[i]] = data %>%
-      filter(between(mzDifference,
+      dplyr::filter(dplyr::between(mzDifference,
                      sigdiff.used[i]-mzdiff, sigdiff.used[i]+mzdiff))
   }
 
@@ -202,7 +214,7 @@ Dulce_filterMZDistances = function(data, sigdiff=NULL, n=NULL, mzdiff=NULL){
     dplyr::summarise(n = n())
 
   data.filtered.sum.w <- data.filtered.sum %>%
-    pivot_wider(names_from = MSMS.fragment, values_from = n)
+    tidyr::pivot_wider(names_from = MSMS.fragment, values_from = n)
 
   # Count how many different significant differences there are per spectrum
   data.filtered.sum = data.filtered.sum %>%
@@ -230,11 +242,12 @@ Dulce_filterMZDistances = function(data, sigdiff=NULL, n=NULL, mzdiff=NULL){
 #'
 #' @return This function returns a `ggplot2` object.
 #' @export
+#' @import tidyverse
 #' @seealso
 #'
 Dulce_MS2FeaturePlot = function(MSpectra, distances, peakId){
 
-  ymax = 1.1
+  ymax = 1.3
 
   # Filter distances by peakId
   df = distances %>% dplyr::filter(peakId==!!peakId)
